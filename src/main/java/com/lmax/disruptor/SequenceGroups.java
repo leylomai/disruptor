@@ -38,12 +38,15 @@ class SequenceGroups
         {
             currentSequences = updater.get(holder);
             updatedSequences = copyOf(currentSequences, currentSequences.length + sequencesToAdd.length);
+            //AbstractSequencer中cursor
             cursorSequence = cursor.getCursor();
 
             int index = currentSequences.length;
+            //本消费组sequence
             for (Sequence sequence : sequencesToAdd)
             {
                 sequence.set(cursorSequence);
+                //本消费组及之前的消费组sequence
                 updatedSequences[index++] = sequence;
             }
         }

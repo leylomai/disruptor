@@ -541,6 +541,7 @@ public class Disruptor<T>
         checkNotStarted();
 
         final Sequence[] processorSequences = new Sequence[eventHandlers.length];
+        //barrierSequences:上一消费组每一eventprocessor中sequence,每一消费组一个barrier实例
         final SequenceBarrier barrier = ringBuffer.newBarrier(barrierSequences);
 
         for (int i = 0, eventHandlersLength = eventHandlers.length; i < eventHandlersLength; i++)
@@ -568,11 +569,14 @@ public class Disruptor<T>
     {
         if (processorSequences.length > 0)
         {
+            //本消费组sequence[]加入AbstractSequencer gatingSequences
             ringBuffer.addGatingSequences(processorSequences);
             for (final Sequence barrierSequence : barrierSequences)
             {
+                //gatingSequences只保留最后一组消费者
                 ringBuffer.removeGatingSequence(barrierSequence);
             }
+            //上一消费组EventProcessorInfo endOfChain置为false，不是消费链的末端
             consumerRepository.unMarkEventProcessorsAsEndOfChain(barrierSequences);
         }
     }

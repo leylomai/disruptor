@@ -171,6 +171,7 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
         int bufferSize,
         WaitStrategy waitStrategy)
     {
+        //ringBuffer唯一sequencer
         SingleProducerSequencer sequencer = new SingleProducerSequencer(bufferSize, waitStrategy);
 
         return new RingBuffer<E>(factory, sequencer);
@@ -210,8 +211,10 @@ public final class RingBuffer<E> extends RingBufferFields<E> implements Cursored
     {
         switch (producerType)
         {
+            //单生产者
             case SINGLE:
                 return createSingleProducer(factory, bufferSize, waitStrategy);
+                //多生产者
             case MULTI:
                 return createMultiProducer(factory, bufferSize, waitStrategy);
             default:

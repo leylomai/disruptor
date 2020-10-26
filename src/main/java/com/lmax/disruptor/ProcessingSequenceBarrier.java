@@ -36,7 +36,9 @@ final class ProcessingSequenceBarrier implements SequenceBarrier
     {
         this.sequencer = sequencer;
         this.waitStrategy = waitStrategy;
+        //sequencer中的cursor
         this.cursorSequence = cursorSequence;
+        //上一消费组中每个eventprocessor的sequence
         if (0 == dependentSequences.length)
         {
             dependentSequence = cursorSequence;
