@@ -124,6 +124,7 @@ public final class SingleProducerSequencer extends SingleProducerSequencerFields
         long nextValue = this.nextValue;
 
         long nextSequence = nextValue + n;
+        //生产者减一轮
         long wrapPoint = nextSequence - bufferSize;
         long cachedGatingSequence = this.cachedValue;
 
@@ -132,11 +133,12 @@ public final class SingleProducerSequencer extends SingleProducerSequencerFields
             cursor.setVolatile(nextValue);  // StoreLoad fence
 
             long minSequence;
+            //生产者减一轮，与最慢的消费者比较，如果追上了，那么生产者停下来
             while (wrapPoint > (minSequence = Util.getMinimumSequence(gatingSequences, nextValue)))
             {
                 LockSupport.parkNanos(1L); // TODO: Use waitStrategy to spin?
             }
-
+            //记录最慢消费者位置
             this.cachedValue = minSequence;
         }
 
