@@ -129,6 +129,8 @@ public final class MultiProducerSequencer extends AbstractSequencer
 
             if (wrapPoint > cachedGatingSequence || cachedGatingSequence > current)
             {
+                //current是生产者的位置，这里gatingSequences数组中的值应该永远小于current，因为消费者消费时
+                //barrier的waitFor有做控制
                 long gatingSequence = Util.getMinimumSequence(gatingSequences, current);
 
                 if (wrapPoint > gatingSequence)
