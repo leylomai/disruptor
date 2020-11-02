@@ -32,7 +32,7 @@ public final class BusySpinWaitStrategy implements WaitStrategy
         throws AlertException, InterruptedException
     {
         long availableSequence;
-
+        //当是第一个消费组时，赋值dependentSequence = cursorSequence，所以当消费者要超过生产者时，也自旋
         while ((availableSequence = dependentSequence.get()) < sequence)
         {
             barrier.checkAlert();
