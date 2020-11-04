@@ -67,6 +67,7 @@ public final class LiteBlockingWaitStrategy implements WaitStrategy
     @Override
     public void signalAllWhenBlocking()
     {
+        //当是多生产者时，也就是可能有多个线程signalAll,这样可以减少lock次数
         if (signalNeeded.getAndSet(false))
         {
             synchronized (mutex)
