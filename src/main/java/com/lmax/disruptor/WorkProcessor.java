@@ -146,8 +146,9 @@ public final class WorkProcessor<T>
                     do
                     {
                         nextSequence = workSequence.get() + 1L;
+                        //set的workSequence的值
                         sequence.set(nextSequence - 1L);
-                    }
+                    }   //workSequence由workPool中多个workProcessor竞争
                     while (!workSequence.compareAndSet(nextSequence - 1L, nextSequence));
                 }
 

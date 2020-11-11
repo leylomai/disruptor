@@ -278,6 +278,7 @@ public final class MultiProducerSequencer extends AbstractSequencer
     @Override
     public long getHighestPublishedSequence(long lowerBound, long availableSequence)
     {
+        //可用的sequence大于等于传入的sequence
         for (long sequence = lowerBound; sequence <= availableSequence; sequence++)
         {
             if (!isAvailable(sequence))
