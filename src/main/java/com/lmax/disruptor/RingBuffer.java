@@ -35,6 +35,7 @@ abstract class RingBufferFields<E> extends RingBufferPad
 
     static
     {
+        //一个数组元素所占的偏移量
         final int scale = UNSAFE.arrayIndexScale(Object[].class);
         if (4 == scale)
         {
@@ -48,6 +49,7 @@ abstract class RingBufferFields<E> extends RingBufferPad
         {
             throw new IllegalStateException("Unknown pointer size");
         }
+        //128字节可以存多少个数组元素
         BUFFER_PAD = 128 / scale;
         // Including the buffer pad in the array base offset
         REF_ARRAY_BASE = UNSAFE.arrayBaseOffset(Object[].class) + 128;
@@ -75,6 +77,7 @@ abstract class RingBufferFields<E> extends RingBufferPad
         }
 
         this.indexMask = bufferSize - 1;
+        //加上数量为2*BUFFER_PAD（即2*128/scale）个元素，等于多加2*128字节的偏移量
         this.entries = new Object[sequencer.getBufferSize() + 2 * BUFFER_PAD];
         fill(eventFactory);
     }
@@ -83,6 +86,7 @@ abstract class RingBufferFields<E> extends RingBufferPad
     {
         for (int i = 0; i < bufferSize; i++)
         {
+            //从128字节所容纳的数组元素后，开始存event。可以看出数组的头尾分别留有128字节
             entries[BUFFER_PAD + i] = eventFactory.newInstance();
         }
     }
@@ -90,6 +94,7 @@ abstract class RingBufferFields<E> extends RingBufferPad
     @SuppressWarnings("unchecked")
     protected final E elementAt(long sequence)
     {
+        //REF_ARRAY_BASE是在数组base起点再加128字节偏移量，从这个起点算起，取数组元素
         return (E) UNSAFE.getObject(entries, REF_ARRAY_BASE + ((sequence & indexMask) << REF_ELEMENT_SHIFT));
     }
 }
