@@ -33,6 +33,7 @@ public abstract class AbstractSequencer implements Sequencer
     protected final int bufferSize;
     protected final WaitStrategy waitStrategy;
     protected final Sequence cursor = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
+    //保留最后一组消费者的sequence
     protected volatile Sequence[] gatingSequences = new Sequence[0];
 
     /**

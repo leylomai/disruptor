@@ -55,6 +55,7 @@ public final class MultiProducerSequencer extends AbstractSequencer
         super(bufferSize, waitStrategy);
         availableBuffer = new int[bufferSize];
         indexMask = bufferSize - 1;
+        //bufferSize = 2^n，这里值为n
         indexShift = Util.log2(bufferSize);
         initialiseAvailableBuffer();
     }
@@ -123,16 +124,16 @@ public final class MultiProducerSequencer extends AbstractSequencer
         {
             current = cursor.get();
             next = current + n;
-
+            //生产者减一圈后的值
             long wrapPoint = next - bufferSize;
             long cachedGatingSequence = gatingSequenceCache.get();
 
             if (wrapPoint > cachedGatingSequence || cachedGatingSequence > current)
             {
                 //current是生产者的位置，这里gatingSequences数组中的值应该永远小于current，因为消费者消费时
-                //barrier的waitFor有做控制
+                //barrier的waitFor有做控制，gatingSequence是最后一组消费者中最慢消费者的位置
                 long gatingSequence = Util.getMinimumSequence(gatingSequences, current);
-
+                //生产者要追上消费者时，阻塞
                 if (wrapPoint > gatingSequence)
                 {
                     LockSupport.parkNanos(1); // TODO, should we spin based on the wait strategy?
@@ -254,6 +255,7 @@ public final class MultiProducerSequencer extends AbstractSequencer
      */
     private void setAvailable(final long sequence)
     {
+        //int[]每个元素存的是生产者当前绕的圈数
         setAvailableBufferValue(calculateIndex(sequence), calculateAvailabilityFlag(sequence));
     }
 
@@ -270,8 +272,10 @@ public final class MultiProducerSequencer extends AbstractSequencer
     public boolean isAvailable(long sequence)
     {
         int index = calculateIndex(sequence);
+        //计算当前sequence值 绕 ringbuffer数组几圈了
         int flag = calculateAvailabilityFlag(sequence);
         long bufferAddress = (index * SCALE) + BASE;
+        //数组中该indx记录的圈数 = 申请的位置对应的圈数，说明生产者没有覆盖当前申请的位置的数据
         return UNSAFE.getIntVolatile(availableBuffer, bufferAddress) == flag;
     }
 
