@@ -35,7 +35,7 @@ public final class MultiProducerSequencer extends AbstractSequencer
     private static final Unsafe UNSAFE = Util.getUnsafe();
     private static final long BASE = UNSAFE.arrayBaseOffset(int[].class);
     private static final long SCALE = UNSAFE.arrayIndexScale(int[].class);
-
+    //记录最后一组消费者中最慢消费者的位置
     private final Sequence gatingSequenceCache = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
 
     // availableBuffer tracks the state of each ringbuffer slot
@@ -126,6 +126,7 @@ public final class MultiProducerSequencer extends AbstractSequencer
             next = current + n;
             //生产者减一圈后的值
             long wrapPoint = next - bufferSize;
+            //最后一组消费者中最慢消费者的位置
             long cachedGatingSequence = gatingSequenceCache.get();
 
             if (wrapPoint > cachedGatingSequence || cachedGatingSequence > current)
